@@ -82,6 +82,7 @@ def main(args):
     random.seed(args.seed)
 
     device = torch.device('cuda:' + str(args.num_gpu)) if torch.cuda.is_available() else torch.device('cpu')
+    print(device)
 
     if args.log:
         logger.add('log_{time}.log')
