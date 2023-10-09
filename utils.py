@@ -79,7 +79,7 @@ def read_data(args):
     # use continuous spatial matrix
     if not os.path.exists(f'data/{filename}_spatial_distance.npy'):
         with open(filepath + file[1], 'r') as fp:
-            dist_matrix = np.zeros((num_node, num_node)) + np.float64('inf')
+            dist_matrix = np.zeros((num_node, num_node)) + np.float32('inf')
             file = csv.reader(fp)
             for line in file:
                 break
@@ -92,8 +92,8 @@ def read_data(args):
 
     dist_matrix = np.load(f'data/{filename}_spatial_distance.npy')
     # normalization
-    std = np.std(dist_matrix[dist_matrix != np.float64('inf')])
-    mean = np.mean(dist_matrix[dist_matrix != np.float64('inf')])
+    std = np.std(dist_matrix[dist_matrix != np.float32('inf')])
+    mean = np.mean(dist_matrix[dist_matrix != np.float32('inf')])
     dist_matrix = (dist_matrix - mean) / std
     sigma = args.sigma2
     sp_matrix = np.exp(- dist_matrix**2 / sigma**2)
@@ -101,7 +101,7 @@ def read_data(args):
 
     print(f'average degree of spatial graph is {np.sum(sp_matrix > 0)/2/num_node}')
     print(f'average degree of semantic graph is {np.sum(dtw_matrix > 0)/2/num_node}')
-    return torch.from_numpy(data_cp.astype(np.float64)), mean_value, std_value, dtw_matrix, sp_matrix
+    return torch.from_numpy(data_cp.astype(np.float32)), mean_value, std_value, dtw_matrix, sp_matrix
 
 
 def get_normalized_adj(A):
@@ -115,7 +115,7 @@ def get_normalized_adj(A):
     A_wave = np.multiply(np.multiply(diag.reshape((-1, 1)), A),
                          diag.reshape((1, -1)))
     A_reg = alpha / 2 * (np.eye(A.shape[0]) + A_wave)
-    return torch.from_numpy(A_reg.astype(np.float64))
+    return torch.from_numpy(A_reg.astype(np.float32))
 
 
 
