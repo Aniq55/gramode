@@ -13,6 +13,7 @@ from model import ODEGCN
 from utils import generate_dataset, read_data, get_normalized_adj
 from eval import masked_mae_np, masked_mape_np, masked_rmse_np
 
+torch.cuda.empty_cache()
 
 def logcosh(true, pred):
     loss = torch.log(torch.cosh(pred - true))

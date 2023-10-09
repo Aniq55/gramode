@@ -36,7 +36,7 @@ def read_data(args):
     file = files[filename]
     filepath = "./data/"
     if args.remote:
-        filepath = '/home/lantu.lqq/ftemp/data/'
+        filepath = '/data/engs-graphml/chri6578/gramode/data/'
     data = np.load(filepath + file[0])['data']
     data_cp=data
     # PEMS04 == shape: (16992, 307, 3)    feature: flow,occupy,speed
