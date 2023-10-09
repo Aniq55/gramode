@@ -101,7 +101,7 @@ def read_data(args):
 
     print(f'average degree of spatial graph is {np.sum(sp_matrix > 0)/2/num_node}')
     print(f'average degree of semantic graph is {np.sum(dtw_matrix > 0)/2/num_node}')
-    return torch.from_numpy(data_cp.astype(np.float6432)), mean_value, std_value, dtw_matrix, sp_matrix
+    return torch.from_numpy(data_cp.astype(np.float64)), mean_value, std_value, dtw_matrix, sp_matrix
 
 
 def get_normalized_adj(A):
@@ -115,7 +115,7 @@ def get_normalized_adj(A):
     A_wave = np.multiply(np.multiply(diag.reshape((-1, 1)), A),
                          diag.reshape((1, -1)))
     A_reg = alpha / 2 * (np.eye(A.shape[0]) + A_wave)
-    return torch.from_numpy(A_reg.astype(np.float6432))
+    return torch.from_numpy(A_reg.astype(np.float64))
 
 
 
