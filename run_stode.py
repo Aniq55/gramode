@@ -81,8 +81,8 @@ def main(args):
     torch.cuda.manual_seed(args.seed)
     random.seed(args.seed)
 
-    # device = torch.device('cuda:0') if torch.cuda.is_available() else torch.device('cpu')
-    device = torch.device('cuda:0')
+    device = torch.device('cuda:0') if torch.cuda.is_available() else torch.device('cpu')
+    # device = torch.device('cuda:0')
     print(device)
 
     if args.log:
