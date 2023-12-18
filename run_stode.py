@@ -7,6 +7,7 @@ from torch.optim.lr_scheduler import StepLR, OneCycleLR, MultiStepLR
 import time
 from tqdm import tqdm
 from loguru import logger
+import logging
 
 from args import args
 from model import ODEGCN
@@ -99,13 +100,14 @@ def main(args):
     print('mean,std: ', train_mean, train_std, val_mean, val_std)
     A_sp_wave = get_normalized_adj(sp_matrix).to(device)
     A_se_wave = get_normalized_adj(dtw_matrix).to(device)
-
+    
+    t_start = time.perf_counter()
     net = ODEGCN(num_nodes=data.shape[1],
-                 num_features=data.shape[2],
-                 num_timesteps_input=args.his_length,
-                 num_timesteps_output=args.pred_length,
-                 A_sp_hat=A_sp_wave,
-                 A_se_hat=A_se_wave)
+                num_features=data.shape[2],
+                num_timesteps_input=args.his_length,
+                num_timesteps_output=args.pred_length,
+                A_sp_hat=A_sp_wave,
+                A_se_hat=A_se_wave)
     net = net.to(device)
     lr = args.lr
     optimizer = torch.optim.AdamW(net.parameters(), lr=lr)
@@ -141,7 +143,7 @@ def main(args):
             val_mape_min = valid_mape
             best_model_wts = net.state_dict()
             torch.save(best_model_wts,
-                       args.save + "epoch_" + str(epoch) + "_" + str(round(val_mape_min.item(), 2)) + "_best_model.pth")
+                    args.save + "epoch_" + str(epoch) + "_" + str(round(val_mape_min.item(), 2)) + "_best_model.pth")
             last_weight_add=args.save + "epoch_" + str(epoch) + "_" + str(round(val_mape_min.item(), 2)) + "_best_model.pth"
         else:
             print(f'\n##on train data## loss: {loss}, \n' +
@@ -158,7 +160,28 @@ def main(args):
 
     net.load_state_dict(torch.load(last_weight_add))
     test_rmse, test_mae, test_mape = eval(test_loader, net, test_std, test_mean, device)
+    
+    t_end = time.perf_counter()
+    t_test = (t_end - t_start)/(((1-(args.train_ratio+args.valid_ratio))*data.shape[0])*data.shape[1])
+    
+    
     print(f'##on test data## rmse loss: {test_rmse}, mae loss: {test_mae}, mape loss: {test_mape}')
+    
+    logging.basicConfig(filename=f"/home/chri6578/Documents/gramode/logs/{args.filename}.txt",
+                    level=logging.INFO)
+
+    log_data = [
+        'GRAMODE',
+        str(args.pred_length),
+        str(args.train_ratio+args.valid_ratio),
+        args.filename,
+        f"{test_mae:.2f}",
+        f"{test_rmse:.2f}",
+        f"{np.log10(t_test):.2f}"
+    ]
+
+    log_string = '\t'.join(log_data)
+    logging.info(log_string)
 
 
 if __name__ == '__main__':

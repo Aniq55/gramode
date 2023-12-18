@@ -33,11 +33,22 @@ def read_data(args):
         sp_matrix: array, spatial adjacency matrix
     """
     filename = args.filename
-    file = files[filename]
     filepath = "./data/"
+    
     if args.remote:
-        filepath = '/data/engs-graphml/chri6578/gramode/data/'
-    data = np.load(filepath + file[0])['data']
+        filepath = '/home/chri6578/Documents/GG_SPP/markovspace/dataset/synthetic/'
+        
+    if filename in files:
+        file = files[filename]
+        data = np.load(filepath + file[0])['data']
+    
+    else:
+        data_file = f"{filepath}data_{filename}.npz"
+        data = np.load(data_file)['data']
+    
+    # data = np.load(filepath + file[0])['data']
+    T = data.shape[0]
+    # data= data[0: int(T/10)]
     data_cp=data
     # PEMS04 == shape: (16992, 307, 3)    feature: flow,occupy,speed
     # PEMSD7M == shape: (12672, 228, 1)
@@ -78,7 +89,12 @@ def read_data(args):
     
     # use continuous spatial matrix
     if not os.path.exists(f'data/{filename}_spatial_distance.npy'):
-        with open(filepath + file[1], 'r') as fp:
+        if filename in files:
+            distance_file = filepath + file[1]
+        else:
+            distance_file = f"{filepath}distance_{filename}.csv"
+            
+        with open(distance_file, 'r') as fp:
             dist_matrix = np.zeros((num_node, num_node)) + np.float32('inf')
             file = csv.reader(fp)
             for line in file:
@@ -113,7 +129,7 @@ def get_normalized_adj(A):
     D[D <= 10e-5] = 10e-5    # Prevent infs
     diag = np.reciprocal(np.sqrt(D))
     A_wave = np.multiply(np.multiply(diag.reshape((-1, 1)), A),
-                         diag.reshape((1, -1)))
+                        diag.reshape((1, -1)))
     A_reg = alpha / 2 * (np.eye(A.shape[0]) + A_wave)
     return torch.from_numpy(A_reg.astype(np.float32))
 
@@ -150,7 +166,7 @@ def generate_graph_seq2seq_io_data(
 def std_mean(data):
 
     seq_length_x = 12
-    seq_length_y = 12
+    seq_length_y = 1
     y_start=1
     x_offsets = np.arange(-(seq_length_x - 1), 1, 1)
     y_offsets = np.arange(y_start, (seq_length_y + 1), 1)

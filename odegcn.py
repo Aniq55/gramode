@@ -108,9 +108,11 @@ class ODEblock(nn.Module):
 
 
 # Define the ODEGCN model.
-class ODEG(nn.Module):
+class ODEG(nn.Module): #num_timesteps_input=args.his_length, num_timesteps_output=args.pred_length,
     def __init__(self, num_nodes,type,feature_dim, temporal_dim, adj, time):
         super(ODEG, self).__init__()
+        # self.time_12=joint_time(feature_dim)
+        # self.time_1=joint_time(temporal_dim)
         self.time_12=joint_time(12)
         self.time_1=joint_time(1)
         self.num_nodes=num_nodes
